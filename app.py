@@ -7,6 +7,7 @@ import feedparser
 from transformers import pipeline
 from gtts import gTTS
 from datetime import datetime
+from deep_translator import GoogleTranslator
 import matplotlib.pyplot as plt
 import base64
 import io 
@@ -26,12 +27,13 @@ COLOR_MAP = {
     "neutral": "#FF9800"    # Orange
 }
 
-# Initialize models 
+# Initialize models (cached properly for Hugging Face)
 @st.cache_resource
 def load_model():
     return pipeline(
         "sentiment-analysis", 
-        model="distilbert-base-uncased-finetuned-sst-2-english"  # Smaller model for faster inference
+        model="distilbert-base-uncased-finetuned-sst-2-english",  # Smaller model for faster inference
+        framework="pt"
     )
 
 def fetch_news(company):
@@ -64,42 +66,21 @@ def create_sentiment_chart(sentiment_counts):
     plt.close()  # Prevents memory leaks
     return fig
 
+
 def text_to_hindi_audio(text):
-    """Converts English text to Hindi speech using gTTS"""
     try:
-        # Simple English-to-Hindi translation mapping (expand as needed)
-        translation_map = {
-            "Tesla": "टेस्ला",
-            "Apple": "एप्पल",
-            "Microsoft": "माइक्रोसॉफ्ट",
-            "Google": "गूगल",
-            "Amazon": "अमेज़न",
-            "news": "समाचार",
-            "summary": "सारांश",
-            "Positive": "सकारात्मक",
-            "Negative": "नकारात्मक",
-            "Neutral": "तटस्थ",
-            "good": "अच्छा",
-            "bad": "खराब",
-            "today": "आज",
-            "report": "रिपोर्ट",
-            "one": "एक",
-            "two": "दो",
-            "three": "तीन"
-        }
-
-        # Translate each word (fallback to original if no translation)
-        translated_text = " ".join([translation_map.get(word, word) for word in text.split()])
-
-        # Generate Hindi audio in-memory
+        # Translation
+        hindi_text = GoogleTranslator(source='en', target='hi').translate(text)
+        
+        # Audio generation
         audio_bytes = io.BytesIO()
-        tts = gTTS(text=translated_text, lang='hi', slow=False)
+        tts = gTTS(text=hindi_text, lang='hi', slow=False)
         tts.write_to_fp(audio_bytes)
-        audio_bytes.seek(0)  # Rewind to start
+        audio_bytes.seek(0)
         return audio_bytes
-
+        
     except Exception as e:
-        st.error(f"⚠️ Audio generation failed: {e}")
+        st.error(f"Audio generation failed: {e}")
         return None
 
 def main():
@@ -131,7 +112,7 @@ def main():
                     st.write(f"**Date:** {article['date']}")
                     st.markdown(f"[Read Full Article ↗]({article['url']})")
                     st.markdown(
-                        f"**Sentiment:** <span style='color:{COLOR_MAP[article["sentiment"]]};'>"
+                        f"**Sentiment:** <span style='color:{COLOR_MAP[article['sentiment']]};'>"
                         f"{article['sentiment'].title()}</span>",
                         unsafe_allow_html=True
                     )
