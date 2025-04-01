@@ -1,0 +1,13 @@
+streamlit
+flask
+feedparser
+transformers
+deep-translator
+torch
+gtts
+googletrans==4.0.0-rc1
+matplotlib
+pandas
+python-dateutil==2.8.2
+httpx==0.24.1
+httpcore==0.17.3
