@@ -60,3 +60,8 @@ streamlit run app.py
 ## License
 This project is licensed under the MIT License.
 
+## 🌐 Live Demo  
+Experience the app live on Hugging Face Spaces:  
+[![Hugging Face Spaces](https://img.shields.io/badge/🤗%20Open%20in%20Spaces-blue)](https://huggingface.co/spaces/DSupraja1408/News-Sentiment-Analysis)
+🔗 **Direct link**: [https://huggingface.co/spaces/DSupraja1408/News-Sentiment-Analysis](https://huggingface.co/spaces/DSupraja1408/News-Sentiment-Analysis)
+
